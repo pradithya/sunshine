@@ -21,15 +21,25 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import net.ariapura.sunshine.data.WeatherContract;
+import net.ariapura.sunshine.service.SunshineService;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
+    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // must change.
+    static final int COL_WEATHER_ID = 0;
+    static final int COL_WEATHER_DATE = 1;
+    static final int COL_WEATHER_DESC = 2;
+    static final int COL_WEATHER_MAX_TEMP = 3;
+    static final int COL_WEATHER_MIN_TEMP = 4;
+    static final int COL_LOCATION_SETTING = 5;
+    static final int COL_WEATHER_CONDITION_ID = 6;
+    static final int COL_COORD_LAT = 7;
+    static final int COL_COORD_LONG = 8;
     private static final int FORECAST_LOADER_ID = 1;
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
@@ -48,32 +58,31 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             WeatherContract.LocationEntry.COLUMN_COORD_LAT,
             WeatherContract.LocationEntry.COLUMN_COORD_LONG
     };
-
-    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
-    // must change.
-    static final int COL_WEATHER_ID = 0;
-    static final int COL_WEATHER_DATE = 1;
-    static final int COL_WEATHER_DESC = 2;
-    static final int COL_WEATHER_MAX_TEMP = 3;
-    static final int COL_WEATHER_MIN_TEMP = 4;
-    static final int COL_LOCATION_SETTING = 5;
-    static final int COL_WEATHER_CONDITION_ID = 6;
-    static final int COL_COORD_LAT = 7;
-    static final int COL_COORD_LONG = 8;
-
+    private static final String SELECTED_ITEM_POSITION = "sel";
     ListView mForecastListView;
-
-    List<String> mWeekForecast = new ArrayList<>();
     ForecastAdapter mForecastAdapter;
     SharedPreferences mSharedPreference;
-
+    Callback mCallback = null;
+    private int mPosition;
+    private boolean mUseTodayLayout = false;
 
     public ForecastFragment() {
     }
 
     @Override
+    public void onAttach(Context context) {
+        try {
+            mCallback = (Callback) context;
+        } catch (ClassCastException c) {
+            throw new ClassCastException(context.toString() + " must implement onItemSelected");
+        }
+        super.onAttach(context);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         //report to activity that this fragment has menu
         setHasOptionsMenu(true);
     }
@@ -85,11 +94,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         //inflate rootView
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
+        if (savedInstanceState != null) {
+            mPosition = savedInstanceState.getInt(SELECTED_ITEM_POSITION);
+        } else {
+            mPosition = 0;
+        }
+
         //create adapter for forecast list
         mForecastAdapter = new ForecastAdapter(context, null, 0);
 
         //find listView and attach the adapter
-        mForecastListView = (ListView)rootView.findViewById(R.id.listview_forecast);
+        mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         mForecastListView.setAdapter(mForecastAdapter);
 
         mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -99,13 +114,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+
+                mPosition = position;
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                                    locationSetting, cursor.getLong(COL_WEATHER_DATE)
-                            ));
-                    startActivity(intent);
+                    Uri dateUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting
+                            , cursor.getLong(COL_WEATHER_DATE));
+                    mCallback.onItemSelected(dateUri);
                 }
             }
         });
@@ -144,13 +159,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private void updateForecast() {
         mSharedPreference= PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        String[] param = new String[2];
-        param[0] = mSharedPreference.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default));
-        param[1] =  mSharedPreference.getString(getString(R.string.pref_units_key),
-                getString(R.string.pref_units_default));
-        //access weather API to get weather forecast (do in Background Thread)
-        new FetchWeatherTask(getContext()).execute(param);
+        Intent startServiceIntent = new Intent(getContext(), SunshineService.class);
+        startServiceIntent.putExtra(SunshineService.UNIT_QUERY_EXTRA, mSharedPreference.getString(getString(R.string.pref_units_key),
+                getString(R.string.pref_units_default)));
+        startServiceIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, mSharedPreference.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default)));
+
+        getContext().startService(startServiceIntent);
     }
 
     public void onLocationChanged() {
@@ -162,6 +177,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(FORECAST_LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(SELECTED_ITEM_POSITION, mPosition);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -177,10 +198,22 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mForecastAdapter.swapCursor(data);
+        mForecastListView.smoothScrollToPositionFromTop(mPosition, 20, 1000);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mForecastAdapter.swapCursor(null);
+    }
+
+    public void setUseTodayLayout(boolean newValue) {
+        mUseTodayLayout = newValue;
+        if (mForecastAdapter != null) {
+            mForecastAdapter.setUseTodayLayout(newValue);
+        }
+    }
+
+    public interface Callback {
+        void onItemSelected(Uri dateUri);
     }
 }

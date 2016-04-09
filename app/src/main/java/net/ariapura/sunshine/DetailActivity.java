@@ -31,8 +31,14 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(savedInstanceState == null) {
+            DetailActivityFragment df = new DetailActivityFragment();
+
+            Bundle args = new Bundle();
+            args.putParcelable(DetailActivityFragment.DETAIL_URI, getIntent().getData());
+
+            df.setArguments(args);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.weather_detail_container, new DetailActivityFragment())
+                    .add(R.id.weather_detail_container, df)
                     .commit();
         }
     }

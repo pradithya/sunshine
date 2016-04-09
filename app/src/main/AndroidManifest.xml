@@ -22,6 +22,7 @@
         </activity>
         <activity
             android:name=".DetailActivity"
+            android:exported="false"
             android:label="@string/title_activity_detail"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -30,6 +31,7 @@
                 android:value="net.ariapura.sunshine.MainActivity" />
         </activity>
         <activity android:name=".SettingsActivity"
+            android:exported="false"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity"
             >
@@ -37,10 +39,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.ariapura.sunshine.MainActivity" />
         </activity>
+
+        <service
+            android:name=".service.SunshineService"
+            android:exported="false" />
         
         <provider
-            android:authorities="net.ariapura.sunshine"
-            android:name="net.ariapura.sunshine.data.WeatherProvider" />
+            android:name="net.ariapura.sunshine.data.WeatherProvider"
+            android:authorities="net.ariapura.sunshine" />
     </application>
 
 </manifest>

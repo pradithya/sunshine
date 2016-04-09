@@ -17,6 +17,7 @@ import android.widget.TextView;
 public class ForecastAdapter extends CursorAdapter {
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE = 1;
+    private boolean useTodayLayout = true;
 
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -24,7 +25,7 @@ public class ForecastAdapter extends CursorAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE;
+        return (position == 0 && useTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE;
     }
 
     @Override
@@ -94,6 +95,10 @@ public class ForecastAdapter extends CursorAdapter {
 
     private String getDay (Context context, Cursor c) {
         return Utility.getFriendlyDayString(context, c.getLong(ForecastFragment.COL_WEATHER_DATE));
+    }
+
+    public void setUseTodayLayout(boolean isUsed) {
+        useTodayLayout = isUsed;
     }
 
     private static class ViewHolder {

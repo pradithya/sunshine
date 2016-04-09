@@ -23,17 +23,29 @@ import android.widget.TextView;
 
 import net.ariapura.sunshine.data.WeatherContract;
 
-import org.w3c.dom.Text;
-
 /**
  * A placeholder fragment containing a simple view.
  */
 public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+    public static final String DETAIL_URI = "DETAIL_URI";
+    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
+    // must change.
+    static final int COL_WEATHER_ID = 0;
+    static final int COL_WEATHER_DATE = 1;
+    static final int COL_WEATHER_DESC = 2;
+    static final int COL_WEATHER_MAX_TEMP = 3;
+    static final int COL_WEATHER_MIN_TEMP = 4;
+    static final int COL_WEATHER_HUMIDITY = 5;
+    static final int COL_WEATHER_WIND_SPEED = 6;
+    static final int COL_WEATHER_DEGREES = 7;
+    static final int COL_WEATHER_PRESSURE = 8;
+    static final int COL_LOCATION_SETTING = 9;
+    static final int COL_WEATHER_CONDITION_ID = 10;
+    static final int COL_COORD_LAT = 11;
+    static final int COL_COORD_LONG = 12;
     private static final String LOG_TAG = DetailActivity.class.getSimpleName();
     private static final String SUNSHINE_HASH_TAG = " #SunshineApp";
-
     private static final int DETAIL_FORECAST_LOADER_ID = 0;
-
     private static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
             // the content provider joins the location & weather tables in the background
@@ -55,23 +67,6 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             WeatherContract.LocationEntry.COLUMN_COORD_LAT,
             WeatherContract.LocationEntry.COLUMN_COORD_LONG
     };
-
-    // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
-    // must change.
-    static final int COL_WEATHER_ID = 0;
-    static final int COL_WEATHER_DATE = 1;
-    static final int COL_WEATHER_DESC = 2;
-    static final int COL_WEATHER_MAX_TEMP = 3;
-    static final int COL_WEATHER_MIN_TEMP = 4;
-    static final int COL_WEATHER_HUMIDITY = 5;
-    static final int COL_WEATHER_WIND_SPEED = 6;
-    static final int COL_WEATHER_DEGREES = 7;
-    static final int COL_WEATHER_PRESSURE = 8;
-    static final int COL_LOCATION_SETTING = 9;
-    static final int COL_WEATHER_CONDITION_ID = 10;
-    static final int COL_COORD_LAT = 11;
-    static final int COL_COORD_LONG = 12;
-
     ShareActionProvider mShareActionProvider;
     String mForecastString;
 
@@ -84,6 +79,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     TextView mPressureTv;
     TextView mForecastTextView;
     ImageView mImage;
+    Uri mUri;
 
     public DetailActivityFragment() {
         setHasOptionsMenu(true);
@@ -94,6 +90,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            mUri = args.getParcelable(DETAIL_URI);
+        }
 
         // bind views
         mDayTv = (TextView)rootView.findViewById(R.id.detail_day);
@@ -133,23 +134,25 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_FORECAST_LOADER_ID, null, this);
+        getLoaderManager().initLoader(DETAIL_FORECAST_LOADER_ID, getArguments(), this);
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Intent intentIn = getActivity().getIntent();
-        String uriStr = null;
-        if (intentIn != null && intentIn.getDataString() != null) {
-            uriStr = intentIn.getDataString();
-        } else {
-            Log.e(LOG_TAG, "No detailed URI passed to activity");
-            return null;
+        if (null != mUri) {
+            // Now create and return a CursorLoader that will take care of
+            // creating a Cursor for the data being displayed.
+            return new CursorLoader(
+                    getActivity(),
+                    mUri,
+                    FORECAST_COLUMNS,
+                    null,
+                    null,
+                    null
+            );
         }
-
-        Uri detailForecastUri = Uri.parse(uriStr);
-        return new CursorLoader(getContext(),detailForecastUri, FORECAST_COLUMNS, null, null, null);
+        return null;
     }
 
     @Override
@@ -165,8 +168,8 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             mForecastTextView.setText(desc);
             mDayTv.setText(Utility.getDayName(context, timemillis));
             mDateTv.setText(date);
-            mHighTv.setText(Utility.formatTemperature(context, data.getLong(COL_WEATHER_MAX_TEMP), Utility.isMetric(context)));
-            mLowTv.setText(Utility.formatTemperature(context, data.getLong(COL_WEATHER_MIN_TEMP), Utility.isMetric(context)));
+            mHighTv.setText(Utility.formatTemperature(context, data.getDouble(COL_WEATHER_MAX_TEMP), Utility.isMetric(context)));
+            mLowTv.setText(Utility.formatTemperature(context, data.getDouble(COL_WEATHER_MIN_TEMP), Utility.isMetric(context)));
             mHumidityTv.setText(String.format(context.getString(R.string.format_humidity), data.getFloat(COL_WEATHER_HUMIDITY)));
             mWindTv.setText(Utility.getFormattedWind(context, data.getFloat(COL_WEATHER_WIND_SPEED), data.getFloat(COL_WEATHER_DEGREES)));
             mPressureTv.setText(String.format(context.getString(R.string.format_pressure), data.getFloat(COL_WEATHER_PRESSURE)));
@@ -181,5 +184,16 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mForecastTextView.setText("");
+    }
+
+    void onLocationChanged(String newLocation) {
+        // replace the uri, since the location has changed
+        Uri uri = mUri;
+        if (null != uri) {
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
+            getLoaderManager().restartLoader(DETAIL_FORECAST_LOADER_ID, null, this);
+        }
     }
 }
