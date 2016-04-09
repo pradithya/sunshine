@@ -309,7 +309,7 @@ public class SunshineService extends IntentService {
             }
 
             // Students: Uncomment the next lines to display what what you stored in the bulkInsert
-            Log.d(LOG_TAG, "FetchWeatherTask Complete. " + cVVector.size() + " Inserted");
+            Log.d(LOG_TAG, "Fetchin Weather Service Complete. " + cVVector.size() + " Inserted");
 
 
         } catch (JSONException e) {
