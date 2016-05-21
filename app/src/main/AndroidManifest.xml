@@ -48,9 +48,6 @@
                 android:value="net.ariapura.sunshine.MainActivity" />
         </activity>
 
-        <service
-            android:name=".service.SunshineService"
-            android:exported="false" />
 
         <service android:name=".sync.SunshineAuthenticatorService">
             <intent-filter>
@@ -78,8 +75,6 @@
             android:authorities="@string/content_authority"
             android:exported="false"
             android:syncable="true" />
-
-        <receiver android:name=".service.SunshineService$AlarmReceiver" />
 
     </application>
 

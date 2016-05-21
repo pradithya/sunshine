@@ -11,10 +11,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Utility {
+
+    public static final String MY_APP_ID = "6c455309e25ee282f7e3e4a03cca284b";
+    // Format used for storing dates in the database.  ALso used for converting those strings
+    // back into date objects for comparison/processing.
+    public static final String DATE_FORMAT = "yyyyMMdd";
+
     public static String getPreferredLocation(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(context.getString(R.string.pref_location_key),
                 context.getString(R.string.pref_location_default));
+    }
+
+    public static String getPreferredUnit(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(context.getString(R.string.pref_units_key),
+                context.getString(R.string.pref_units_metric));
     }
 
     public static boolean isMetric(Context context) {
@@ -38,10 +50,6 @@ public class Utility {
         Date date = new Date(dateInMillis);
         return DateFormat.getDateInstance().format(date);
     }
-
-    // Format used for storing dates in the database.  ALso used for converting those strings
-    // back into date objects for comparison/processing.
-    public static final String DATE_FORMAT = "yyyyMMdd";
 
     /**
      * Helper method to convert the database representation of the date into something to display
