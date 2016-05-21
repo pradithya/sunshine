@@ -1,9 +1,11 @@
 package net.ariapura.sunshine.service;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -317,5 +319,21 @@ public class SunshineService extends IntentService {
             e.printStackTrace();
         }
         return;
+    }
+
+    public static class AlarmReceiver extends BroadcastReceiver {
+
+        public static final String LOG_TAG = AlarmReceiver.class.getSimpleName();
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Alarm Received");
+
+            Intent startServiceIntent = new Intent(context, SunshineService.class);
+            startServiceIntent.putExtra(LOCATION_QUERY_EXTRA, intent.getStringExtra(LOCATION_QUERY_EXTRA));
+            startServiceIntent.putExtra(UNIT_QUERY_EXTRA, intent.getStringExtra(UNIT_QUERY_EXTRA));
+            context.startService(startServiceIntent);
+
+        }
     }
 }

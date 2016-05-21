@@ -1,11 +1,14 @@
 package net.ariapura.sunshine;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -138,7 +141,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         int idSelected = item.getItemId();
         if (idSelected == R.id.action_refresh) {
             //access weather API to get weather forecast (do in Background Thread)
-            updateForecast();
+            updateWeather();
             return true;
         }
 
@@ -156,20 +159,37 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateForecast() {
+    private void updateWeather() {
+        Context context = getContext();
         mSharedPreference= PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        Intent startServiceIntent = new Intent(getContext(), SunshineService.class);
-        startServiceIntent.putExtra(SunshineService.UNIT_QUERY_EXTRA, mSharedPreference.getString(getString(R.string.pref_units_key),
-                getString(R.string.pref_units_default)));
-        startServiceIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, mSharedPreference.getString(getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default)));
+        String location = mSharedPreference.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+        String unit = mSharedPreference.getString(getString(R.string.pref_units_key),
+                getString(R.string.pref_units_default));
 
-        getContext().startService(startServiceIntent);
+        Intent startServiceIntent = new Intent(getContext(), SunshineService.class);
+        startServiceIntent.putExtra(SunshineService.UNIT_QUERY_EXTRA, unit);
+        startServiceIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
+
+        // start service to update weather
+        context.startService(startServiceIntent);
+
+        //get alarm manager
+        AlarmManager alarmMng = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        //create intent
+        Intent intent = new Intent(context, SunshineService.AlarmReceiver.class);
+        intent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
+        intent.putExtra(SunshineService.UNIT_QUERY_EXTRA, unit);
+        //wrap in pending intent
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        //send to alarm manager
+        alarmMng.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5000
+                , alarmIntent);
     }
 
     public void onLocationChanged() {
-        updateForecast();
+        updateWeather();
         getLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
     }
 
