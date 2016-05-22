@@ -65,4 +65,5 @@
     <string name="pref_last_notification">last_notification
     </string>
 
+    <string name="listview_forecast_empty_text">No Weather Information Available</string>
 </resources>
