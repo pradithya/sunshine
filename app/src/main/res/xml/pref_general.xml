@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference android:title="@string/pref_location_title"
-        android:key="@string/pref_location_key"
+    <EditTextPreference
         android:defaultValue="@string/pref_location_default"
         android:inputType="text"
-        android:singleLine="true" />
+        android:key="@string/pref_location_key"
+        android:singleLine="true"
+        android:title="@string/pref_location_title" />
 
-    <ListPreference android:title="@string/pref_units_title"
-        android:key="@string/pref_units_key"
+    <ListPreference
         android:defaultValue="@string/pref_units_default"
         android:dialogTitle="@string/pref_units_title"
         android:entries="@array/unit_entries"
-        android:entryValues="@array/unit_entryValues">
+        android:entryValues="@array/unit_entryValues"
+        android:key="@string/pref_units_key"
+        android:title="@string/pref_units_title">
 
     </ListPreference>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_notification"
+        android:title="@string/pref_title_notification" />
 
 </PreferenceScreen>
