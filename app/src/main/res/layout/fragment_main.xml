@@ -20,4 +20,5 @@
         android:gravity="center"
         android:padding="16dp"
         android:text="@string/listview_forecast_empty_text" />
+
 </FrameLayout>

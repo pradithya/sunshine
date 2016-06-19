@@ -1,5 +1,6 @@
 package net.ariapura.sunshine;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import net.ariapura.sunshine.data.WeatherContract;
 import net.ariapura.sunshine.sync.SunshineSyncAdapter;
@@ -186,8 +188,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mForecastAdapter.swapCursor(data);
-        mForecastListView.smoothScrollToPositionFromTop(mPosition, 20, 1000);
+        if (data.moveToFirst()){
+            mForecastAdapter.swapCursor(data);
+            mForecastListView.smoothScrollToPositionFromTop(mPosition, 20, 1000);
+            return;
+        }
+
+        //check network
+        Activity act = getActivity();
+        if (!Utility.isNetworkAvailable(act)){
+            TextView emptyView = (TextView) act.findViewById(R.id.listview_forecast_empty);
+            emptyView.setText(R.string.listview_forecast_nocon_text);
+        }
+
     }
 
     @Override

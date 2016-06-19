@@ -66,4 +66,5 @@
     </string>
 
     <string name="listview_forecast_empty_text">No Weather Information Available</string>
+    <string name="listview_forecast_nocon_text">The network is not available to fetch data</string>
 </resources>
