@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -29,7 +30,8 @@ import net.ariapura.sunshine.sync.SunshineSyncAdapter;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
     // must change.
     static final int COL_WEATHER_ID = 0;
@@ -69,6 +71,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private boolean mUseTodayLayout = false;
 
     public ForecastFragment() {
+    }
+
+    @Override
+    public void onPause() {
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        PreferenceManager.getDefaultSharedPreferences(getContext())
+                .registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
     }
 
     @Override
@@ -198,7 +214,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         Activity act = getActivity();
         if (!Utility.isNetworkAvailable(act)){
             TextView emptyView = (TextView) act.findViewById(R.id.listview_forecast_empty);
-            emptyView.setText(R.string.listview_forecast_nocon_text);
+            emptyView.setText(R.string.empty_forecast_nocon_text);
         }
 
     }
@@ -240,7 +256,40 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getContext().getString(R.string.pref_sync_result))) {
+            updateEmptyView();
+        }
+    }
+
+    public void updateEmptyView() {
+        if (mForecastAdapter.getCount() == 0) {
+            Activity act = getActivity();
+            int syncResult = Utility.getSyncStatus(act);
+            int stringId;
+            switch (syncResult) {
+                case SunshineSyncAdapter.LOCATION_STATUS_OK:
+                    return;
+                case SunshineSyncAdapter.LOCATION_STATUS_SERVER_DOWN:
+                    stringId = R.string.empty_forecast_list_server_down;
+                    break;
+                case SunshineSyncAdapter.LOCATION_STATUS_SERVER_INVALID:
+                    stringId = R.string.empty_forecast_list_server_error;
+                    break;
+                default:
+                    stringId = R.string.empty_forecast_empty_text;
+            }
+
+            TextView emptyView = (TextView) act.findViewById(R.id.listview_forecast_empty);
+            if (emptyView != null) {
+                emptyView.setText(stringId);
+            }
+        }
+    }
+
     public interface Callback {
         void onItemSelected(Uri dateUri);
     }
+
 }

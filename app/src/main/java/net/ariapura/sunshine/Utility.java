@@ -8,6 +8,8 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 
+import net.ariapura.sunshine.sync.SunshineSyncAdapter;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,6 +31,12 @@ public class Utility {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         return prefs.getString(context.getString(R.string.pref_units_key),
                 context.getString(R.string.pref_units_metric));
+    }
+
+    public static int getSyncStatus(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getInt(context.getString(R.string.pref_sync_result),
+                SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
     }
 
     public static boolean isMetric(Context context) {
