@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
@@ -37,6 +38,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
@@ -44,10 +47,13 @@ import java.util.Vector;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
+    public static final int LOCATION_STATUS_OK = 0;
+    public static final int LOCATION_STATUS_SERVER_DOWN = 1;
+    public static final int LOCATION_STATUS_SERVER_INVALID = 2;
+    public static final int LOCATION_STATUS_UNKNOWN = 3;
     static final int HOUR_PER_SYNC = 6;
     static final int SYNC_INTERVAL = 3600 * HOUR_PER_SYNC;
     static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
-
     private static final String[] NOTIFY_WEATHER_PROJECTION = new String[]{
             WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
@@ -59,15 +65,18 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int INDEX_MAX_TEMP = 1;
     private static final int INDEX_MIN_TEMP = 2;
     private static final int INDEX_SHORT_DESC = 3;
-
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int WEATHER_NOTIFICATION_ID = 3004;
-
     ContentResolver mContentResolver;
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContentResolver = getContext().getContentResolver();
+    }
+
+    static void setSyncResult(Context context, @LocationStatus int syncResult) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        sp.edit().putInt(context.getString(R.string.pref_sync_result), syncResult).commit();
     }
 
     public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
@@ -218,6 +227,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
+                setSyncResult(context, LOCATION_STATUS_SERVER_INVALID);
                 // Nothing to do.
                 return;
             }
@@ -232,15 +242,23 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if (buffer.length() == 0) {
+                setSyncResult(context, LOCATION_STATUS_SERVER_DOWN);
                 // Stream was empty.  No point in parsing.
                 return;
             }
             forecastJsonStr = buffer.toString();
+            getWeatherDataFromJson(context, forecastJsonStr, locationQuery);
+
         } catch (IOException e) {
+            setSyncResult(context, LOCATION_STATUS_SERVER_DOWN);
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             return;
+        } catch (JSONException e) {
+            setSyncResult(context, LOCATION_STATUS_SERVER_INVALID);
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -254,16 +272,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        try {
-            getWeatherDataFromJson(forecastJsonStr, locationQuery);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage(), e);
-            e.printStackTrace();
-        }
-        // This will only happen if there was an error getting or parsing the forecast.
         return;
     }
-
 
     /**
      * Helper method to handle insertion of a new location in the weather database.
@@ -297,7 +307,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
@@ -305,7 +314,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    private void getWeatherDataFromJson(String forecastJsonStr,
+    private void getWeatherDataFromJson(Context context, String forecastJsonStr,
                                         String locationSetting)
             throws JSONException {
 
@@ -452,10 +461,12 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             // Students: Uncomment the next lines to display what what you stored in the bulkInsert
-            Log.d(LOG_TAG, "Fetchin Weather Service Complete. " + cVVector.size() + " Inserted");
+            Log.d(LOG_TAG, "Fetching Weather Service Complete. " + cVVector.size() + " Inserted");
 
+            setSyncResult(context, LOCATION_STATUS_OK);
 
         } catch (JSONException e) {
+            setSyncResult(context, LOCATION_STATUS_SERVER_INVALID);
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
@@ -525,5 +536,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
+    }
+
+    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface LocationStatus {
     }
 }
