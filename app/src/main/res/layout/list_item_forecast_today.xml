@@ -6,50 +6,65 @@
     android:gravity="center"
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:orientation="horizontal"
-    android:padding= "24dp">
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp">
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="8dp">
-        <TextView
-            android:id="@+id/list_item_date_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="Today, June 13 2016"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-        <TextView
-            android:id="@+id/list_item_high_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="30 C"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-        <TextView
-            android:id="@+id/list_item_low_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="25 C"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_weight="1">
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
+        android:layout_weight="2"
         android:orientation="vertical">
+        <TextView
+            android:id="@+id/list_item_date_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Today, June 13 2016"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/white" />
+        <TextView
+            android:id="@+id/list_item_high_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:layout_weight="2"
+            android:fontFamily="sans-serif-light"
+            android:text="30 C"
+            android:textColor="@color/white"
+            android:textSize="72sp" />
+        <TextView
+            android:id="@+id/list_item_low_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-light"
+            android:text="25 C"
+            android:textColor="@color/white"
+            android:textSize="32sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/list_item_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@mipmap/ic_launcher"
             />
 
@@ -57,8 +72,10 @@
             android:id="@+id/list_item_forecast_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
             android:text="Clear"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/white" />
 
     </LinearLayout>
 
