@@ -8,7 +8,7 @@
     <string name="action_location">Show Location</string>
     <string name="action_share">Share</string>
 
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">Details</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Location Preference -->
