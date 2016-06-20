@@ -55,7 +55,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int LOCATION_STATUS_SERVER_DOWN = 1;
     public static final int LOCATION_STATUS_SERVER_INVALID = 2;
     public static final int LOCATION_STATUS_UNKNOWN = 3;
-    public static final int LOCATION_INVALID = 4;
+    public static final int LOCATION_STATUS_INVALID = 4;
     static final int HOUR_PER_SYNC = 6;
     static final int SYNC_INTERVAL = 3600 * HOUR_PER_SYNC;
     static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
@@ -365,7 +365,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     case HttpURLConnection.HTTP_OK:
                         break;
                     case HttpURLConnection.HTTP_NOT_FOUND:
-                        Utility.setSynchStatus(context, LOCATION_INVALID);
+                        Utility.setSynchStatus(context, LOCATION_STATUS_INVALID);
                         return;
                     default:
                         Utility.setSynchStatus(context, LOCATION_STATUS_SERVER_DOWN);
@@ -500,7 +500,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         String lastNotificationKey = context.getString(R.string.pref_last_notification);
         long lastSync = prefs.getLong(lastNotificationKey, 0);
 
-        boolean isNotificationOn = prefs.getBoolean(context.getString(R.string.pref_notification), true);
+        boolean isNotificationOn = prefs.getBoolean(context.getString(R.string.pref_notification_key), true);
 
         if (isNotificationOn) {
             if (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) {
@@ -557,7 +557,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN, LOCATION_INVALID})
+    @IntDef({LOCATION_STATUS_OK, LOCATION_STATUS_SERVER_DOWN, LOCATION_STATUS_SERVER_INVALID, LOCATION_STATUS_UNKNOWN, LOCATION_STATUS_INVALID})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LocationStatus {
     }

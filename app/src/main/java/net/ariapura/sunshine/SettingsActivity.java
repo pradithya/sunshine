@@ -52,7 +52,7 @@ public class SettingsActivity extends PreferenceActivity
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
-        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_notification)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_notification_key)));
 
     }
 
@@ -97,6 +97,31 @@ public class SettingsActivity extends PreferenceActivity
             }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
+            String prefKey = preference.getKey();
+
+            if (prefKey.equals(getString(R.string.pref_location_key))) {
+                @SunshineSyncAdapter.LocationStatus int locationStatus = Utility.getSyncStatus(this);
+                switch (locationStatus) {
+                    case SunshineSyncAdapter.LOCATION_STATUS_OK:
+                        break;
+                    case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
+                        stringValue = getString(R.string.pref_location_error_description, stringValue);
+                        break;
+                    case SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN:
+                        stringValue = getString(R.string.pref_location_unknown_description, stringValue);
+                        break;
+                    default:
+                        break;
+                }
+
+            } else if (prefKey.equals(getString(R.string.pref_notification_key))) {
+                if (value.equals(Boolean.FALSE)) {
+                    stringValue = getString(R.string.pref_notification_disabled_description);
+                } else {
+                    stringValue = getString(R.string.pref_notification_enabled_description);
+                }
+            }
+
             preference.setSummary(stringValue);
 
         }

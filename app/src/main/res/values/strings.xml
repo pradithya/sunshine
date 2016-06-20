@@ -15,6 +15,9 @@
     <string name="pref_location_key">location</string>
     <string name="pref_location_title">Location</string>
     <string name="pref_location_default">640263</string>
+    <!-- Strings used when displaying the state of the Location in settings -->
+    <string name="pref_location_error_description">Invalid Location (<xliff:g id="location_setting">%1$s</xliff:g>)"</string>
+    <string name="pref_location_unknown_description">Validating Location... (<xliff:g id="location_setting">%1$s</xliff:g>)"</string>
 
     <!-- Unit Preference -->
     <string name="pref_units_key">unit</string>
@@ -24,8 +27,10 @@
     <string name="pref_units_imperial">imperial</string>
 
     <!-- Notification Preference -->
-    <string name="pref_notification">notif</string>
-    <string name="pref_title_notification">Turn On Notification</string>
+    <string name="pref_notification_key">notif</string>
+    <string name="pref_title_notification">Notification</string>
+    <string name="pref_notification_enabled_description">Enabled</string>
+    <string name="pref_notification_disabled_description">Disabled</string>
 
     <!-- Shared Preference for Last Sync Result -->
     <string name="pref_sync_result">sync_result</string>
@@ -40,7 +45,6 @@
     <string name="format_full_friendly_date"><xliff:g id="day">%1$s</xliff:g>, <xliff:g id="date">%2$s</xliff:g></string>
 
     <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
-
 
     <!-- Windspeed formats -->
     <!-- Wind in mph [CHAR LIMIT=25] -->
@@ -75,4 +79,6 @@
     <string name="empty_forecast_list_server_down"> No weather information available. The server is not returning data.</string>
     <string name="empty_forecast_list_server_error">No weather information available. The server is not returning valid data. Please check for an updated version of Sunshine.</string>
     <string name="empty_forecast_invalid">No weather information available. The location in settings is not recognized by the weather server.</string>
+
+
 </resources>
