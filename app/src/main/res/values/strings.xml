@@ -49,12 +49,12 @@
     <!-- Windspeed formats -->
     <!-- Wind in mph [CHAR LIMIT=25] -->
     <string name="format_wind_mph">
-        Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g>
+        Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph,  <xliff:g id="direction">%2$s</xliff:g>
     </string>
 
         <!-- Wind in kph [CHAR LIMIT=25] -->
     <string name="format_wind_kmh">
-        Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g>
+        Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h, <xliff:g id="direction">%2$s</xliff:g>
     </string>
 
     <!-- Pressure format CHAR LIMIT=25] -->
@@ -80,5 +80,6 @@
     <string name="empty_forecast_list_server_error">No weather information available. The server is not returning valid data. Please check for an updated version of Sunshine.</string>
     <string name="empty_forecast_invalid">No weather information available. The location in settings is not recognized by the weather server.</string>
 
+    <string name="desc_weather_symbol">Forecast</string>
 
 </resources>

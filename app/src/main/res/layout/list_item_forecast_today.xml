@@ -65,6 +65,7 @@
             android:id="@+id/list_item_icon"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:contentDescription="@string/desc_weather_symbol"
             android:src="@mipmap/ic_launcher"
             />
 
