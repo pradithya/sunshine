@@ -53,7 +53,7 @@ public class SettingsActivity extends PreferenceActivity
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_notification_key)));
-
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_icon_pack_key)));
     }
 
     /**

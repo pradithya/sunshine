@@ -32,6 +32,17 @@
     <string name="pref_notification_enabled_description">Enabled</string>
     <string name="pref_notification_disabled_description">Disabled</string>
 
+    <!-- Icon Pack Preference -->
+    <string name="pref_icon_pack_key">icon_pack</string>
+    <string name="pref_icon_pack_title">Icon Pack</string>
+    <string name="pref_art_pack_label_sunshine">Colored</string>
+    <string name="pref_art_pack_label_cute_dog">Mono</string>
+    <!-- Value in SharedPreferences for Sunshine art pack option [CHAR LIMIT=NONE] -->
+    <string name="pref_art_pack_sunshine" translatable="false">https://raw.githubusercontent.com/udacity/Sunshine-Version-2/sunshine_master/app/src/main/res/drawable-xxhdpi/art_<xliff:g id="description">%s</xliff:g>.png</string>
+
+    <!-- Value in SharedPreferences for cute dogs art pack  option [CHAR LIMIT=NONE] -->
+    <string name="pref_art_pack_cute_dogs" translatable="false">https://github.com/udacity/sunshine_icons/tree/master/Archive/Mono/art_%s.png</string>
+
     <!-- Shared Preference for Last Sync Result -->
     <string name="pref_sync_result">sync_result</string>
 

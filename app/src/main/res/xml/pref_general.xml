@@ -24,4 +24,14 @@
         android:key="@string/pref_notification_key"
         android:title="@string/pref_title_notification" />
 
+    <ListPreference
+        android:defaultValue="@string/pref_art_pack_label_sunshine"
+        android:dialogTitle="@string/pref_icon_pack_title"
+        android:entries="@array/pref_art_pack_options"
+        android:entryValues="@array/pref_art_pack_values"
+        android:key="@string/pref_icon_pack_key"
+        android:title="@string/pref_icon_pack_title">
+
+    </ListPreference>
+
 </PreferenceScreen>

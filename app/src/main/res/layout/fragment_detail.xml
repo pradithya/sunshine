@@ -70,6 +70,7 @@
                     android:id="@+id/detail_icon"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
+                    android:adjustViewBounds="true"
                     android:contentDescription="@string/desc_weather_symbol" />
                 <TextView
                     android:id="@+id/detail_forecast"
