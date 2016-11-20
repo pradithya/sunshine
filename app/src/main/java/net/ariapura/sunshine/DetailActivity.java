@@ -31,10 +31,10 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(savedInstanceState == null) {
-            DetailActivityFragment df = new DetailActivityFragment();
+            DetailFragment df = new DetailFragment();
 
             Bundle args = new Bundle();
-            args.putParcelable(DetailActivityFragment.DETAIL_URI, getIntent().getData());
+            args.putParcelable(DetailFragment.DETAIL_URI, getIntent().getData());
 
             df.setArguments(args);
             getSupportFragmentManager().beginTransaction()

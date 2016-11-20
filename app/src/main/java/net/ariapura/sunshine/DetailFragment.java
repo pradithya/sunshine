@@ -21,12 +21,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import net.ariapura.sunshine.data.WeatherContract;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String DETAIL_URI = "DETAIL_URI";
     // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
     // must change.
@@ -81,7 +83,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     ImageView mImage;
     Uri mUri;
 
-    public DetailActivityFragment() {
+    public DetailFragment() {
         setHasOptionsMenu(true);
     }
 
@@ -173,7 +175,10 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             mHumidityTv.setText(String.format(context.getString(R.string.format_humidity), data.getFloat(COL_WEATHER_HUMIDITY)));
             mWindTv.setText(Utility.getFormattedWind(context, data.getFloat(COL_WEATHER_WIND_SPEED), data.getFloat(COL_WEATHER_DEGREES)));
             mPressureTv.setText(String.format(context.getString(R.string.format_pressure), data.getFloat(COL_WEATHER_PRESSURE)));
-            mImage.setImageResource(Utility.getArtResourceForWeatherCondition(data.getInt(COL_WEATHER_CONDITION_ID)));
+
+            Glide.with(context).load(Utility.getArtUrlForWeatherCondition(context, data.getInt(COL_WEATHER_CONDITION_ID)))
+                    .error(Utility.getArtResourceForWeatherCondition(data.getInt(COL_WEATHER_CONDITION_ID)))
+                    .into(mImage);
 
             if (mShareActionProvider != null) {
                 mShareActionProvider.setShareIntent(createShareIntent());

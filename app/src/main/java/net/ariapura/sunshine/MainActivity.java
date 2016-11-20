@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             // fragment transaction.
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.weather_detail_container, new DetailActivityFragment(), DETAIL_FRAGMENT_TAG)
+                        .replace(R.id.weather_detail_container, new DetailFragment(), DETAIL_FRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             if (null != ff) {
                 ff.onLocationChanged();
             }
-            DetailActivityFragment df = (DetailActivityFragment) getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            DetailFragment df = (DetailFragment) getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
             if (null != df) {
                 df.onLocationChanged(location);
             }
@@ -108,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
     public void onItemSelected(Uri locationUri) {
         if (mTwoPane) {
             Bundle args = new Bundle();
-            args.putParcelable(DetailActivityFragment.DETAIL_URI, locationUri);
+            args.putParcelable(DetailFragment.DETAIL_URI, locationUri);
 
-            DetailActivityFragment df = new DetailActivityFragment();
+            DetailFragment df = new DetailFragment();
             df.setArguments(args);
 
             getSupportFragmentManager()

@@ -14,7 +14,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
 import android.util.Log;
+
+import com.bumptech.glide.Glide;
 
 import net.ariapura.sunshine.MainActivity;
 import net.ariapura.sunshine.R;
@@ -44,6 +49,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
@@ -72,6 +78,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int INDEX_SHORT_DESC = 3;
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int WEATHER_NOTIFICATION_ID = 3004;
+
     ContentResolver mContentResolver;
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -518,9 +525,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     double high = cursor.getDouble(INDEX_MAX_TEMP);
                     double low = cursor.getDouble(INDEX_MIN_TEMP);
                     String desc = cursor.getString(INDEX_SHORT_DESC);
-
-                    int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
                     String title = context.getString(R.string.app_name);
+                    Resources resources = context.getResources();
 
                     // Define the text of the forecast.
                     String contentText = String.format(context.getString(R.string.format_notification),
@@ -529,9 +535,30 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                             Utility.formatTemperature(context, low, Utility.isMetric(context)));
 
                     //build your notification here.
+                    Bitmap largeIcon = null;
+                    int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
+                    try {
+                        String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
+                        int largeIconWidth = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                                ? resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
+                                : resources.getDimensionPixelSize(R.dimen.notification_large_icon_default);
+                        int largeIconHeight = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                                ? resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height)
+                                : resources.getDimensionPixelSize(R.dimen.notification_large_icon_default);
+                        largeIcon = Glide.with(context)
+                                .load(artUrl)
+                                .asBitmap()
+                                .error(artResourceId)
+                                .into(largeIconWidth, largeIconHeight)
+                                .get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        Log.e(LOG_TAG, "exception  while creating notification");
+                        largeIcon = BitmapFactory.decodeResource(resources, artResourceId);
+                    }
                     NotificationCompat.Builder notifBuilder =
                             new NotificationCompat.Builder(context)
-                                    .setSmallIcon(iconId)
+                                    .setSmallIcon(artResourceId)
+                                    .setLargeIcon(largeIcon)
                                     .setContentTitle(title)
                                     .setContentText(contentText);
 

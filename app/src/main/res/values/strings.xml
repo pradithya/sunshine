@@ -82,4 +82,6 @@
 
     <string name="desc_weather_symbol">Forecast</string>
 
+
+    <string name="format_art_url" translatable="false">https://raw.githubusercontent.com/udacity/Sunshine-Version-2/sunshine_master/app/src/main/res/drawable-xxhdpi/art_<xliff:g id="description">%s</xliff:g>.png</string>
 </resources>

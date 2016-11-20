@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
@@ -74,11 +76,28 @@ public class ForecastAdapter extends CursorAdapter {
 
         int viewType = getItemViewType(cursor.getPosition());
 
-        if (viewType == VIEW_TYPE_TODAY) {
-            iconIv.setImageResource(Utility.getArtResourceForWeatherCondition(cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
-        } else if (viewType == VIEW_TYPE_FUTURE) {
-            iconIv.setImageResource(Utility.getIconResourceForWeatherCondition(cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID)));
+        int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
+        int fallbackIconId;
+        switch (viewType) {
+            case VIEW_TYPE_TODAY: {
+                // Get weather icon
+                fallbackIconId = Utility.getArtResourceForWeatherCondition(
+                        weatherId);
+                break;
+            }
+            default: {
+                // Get weather icon
+                fallbackIconId = Utility.getIconResourceForWeatherCondition(
+                        weatherId);
+                break;
+            }
         }
+
+        Glide.with(mContext)
+                .load(Utility.getArtUrlForWeatherCondition(mContext, weatherId))
+                .error(fallbackIconId)
+                .crossFade()
+                .into(iconIv);
     }
 
     private String getTempHigh (Context context, Cursor c){
