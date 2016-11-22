@@ -95,4 +95,5 @@
 
 
     <string name="format_art_url" translatable="false">https://raw.githubusercontent.com/udacity/Sunshine-Version-2/sunshine_master/app/src/main/res/drawable-xxhdpi/art_<xliff:g id="description">%s</xliff:g>.png</string>
+    <string name="weather_alert">Heads up: %1$s in %2$s!</string>
 </resources>
